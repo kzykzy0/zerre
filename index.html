@@ -78,26 +78,28 @@
     nav,.dots{display:none}
     header{padding:18px 6vw}
     .logo{font-size:13px}
-    section{padding:0 6vw 7svh;align-items:flex-end}
-    section.center{align-items:flex-end}
-    section .inner{max-width:none!important;width:calc(100% + 12vw)!important;margin:0 -6vw;padding:90px 6vw 0;background:linear-gradient(to top,rgba(6,9,8,.88) 55%,rgba(6,9,8,0))}
-    section#s0 .inner{padding-top:40px}
-    .eyebrow{font-size:10.5px;letter-spacing:.2em;margin-bottom:16px;gap:10px}
+    section{min-height:135vh;padding:0;align-items:flex-end;justify-content:stretch}
+    @supports (min-height:100svh){section{min-height:135svh}}
+    section.right,section.center{justify-content:stretch}
+    section .inner{position:sticky;bottom:0;max-width:none!important;width:100%!important;margin:0;
+      padding:64px 6vw calc(4svh + env(safe-area-inset-bottom));
+      background:linear-gradient(to top,rgba(6,9,8,.92) 60%,rgba(6,9,8,0));will-change:opacity}
+    .eyebrow{font-size:10.5px;letter-spacing:.2em;margin-bottom:14px;gap:10px}
     .eyebrow:before{width:22px}
-    h1{font-size:clamp(52px,17vw,76px)}
-    h2{font-size:clamp(34px,10.5vw,46px)}
-    p.lead{font-size:15px;line-height:1.55;margin-top:16px}
-    .stats{gap:26px;margin-top:22px}.stats strong{font-size:28px}.stats span{font-size:10px}
+    h1{font-size:clamp(50px,16vw,72px)}
+    h2{font-size:clamp(32px,10vw,44px)}
+    p.lead{font-size:14.5px;line-height:1.5;margin-top:14px}
+    .stats{gap:26px;margin-top:18px}.stats strong{font-size:26px}.stats span{font-size:10px}
     .hint{display:none}
-    .cards{margin-top:18px;gap:10px}
-    .card{padding:14px 16px;border-radius:14px}
+    .cards{margin-top:16px;gap:10px}
+    .card{padding:13px 15px;border-radius:14px}
     .card:nth-child(2){display:none}
     .card h3{font-size:15px}.card p{font-size:13px}
-    .pills{gap:8px;margin-top:22px}
+    .pills{gap:8px;margin-top:20px}
     .pill{padding:11px 16px;font-size:12.5px}
-    #fnote{font-size:14px;margin-top:16px}
-    .steps{margin-top:16px}.step{padding:12px 0;gap:16px}.step b{font-size:24px}.step h3{font-size:16px}.step p{font-size:13px}
-    form{margin-top:22px}
+    #fnote{font-size:14px;margin-top:14px}
+    .steps{margin-top:14px}.step{padding:11px 0;gap:16px}.step b{font-size:24px}.step h3{font-size:16px}.step p{font-size:13px}
+    form{margin-top:20px}
     input[type=email]{padding:15px 22px;font-size:16px}
     .btn{padding:16px 28px}
     footer{padding:20px 6vw;font-size:10px;flex-direction:column;gap:6px}
@@ -406,24 +408,25 @@
     {cx:-3.6,cy:0,  cs:0,   cry:0,crz:0,   bx:-1.9,by:0,  bs:1.1, brx:.16,bry:.3, open:0,rise:0},
     {cx:-3.6,cy:0,  cs:0,   cry:0,crz:0,   bx:1.9, by:-.85,bs:1.05,brx:.12,bry:-.2,open:1,rise:1},
     {cx:-3.6,cy:0,  cs:0,   cry:0,crz:0,   bx:-1.9,by:-.85,bs:1.0, brx:.1,bry:.25,  open:1,rise:1},
-    {cx:-3.9,cy:-.1,cs:.6,  cry:0,crz:.08, bx:3.8, by:-.75,bs:.62,brx:.12,bry:-.3, open:1,rise:1}
+    {cx:-3.9,cxm:-.95,cy:-.1,cs:.6,  cry:0,crz:.08, bx:3.8,bxm:.8, by:-.75,bs:.62,brx:.12,bry:-.3, open:1,rise:1}
   ];
   function ease(t){return t*t*(3-2*t)}
   function lerp(a,b,t){return a+(b-a)*t}
   function cl(x){return Math.max(0,Math.min(1,x))}
-  var target=0,cur=0,mouseX=0,mouseY=0,mx=0,my=0,maxScroll=1;
-  function measure(){maxScroll=Math.max(1,root.scrollHeight-innerHeight)}
-  var lastW=0,lastH=0;function resize(){var w=innerWidth,h=innerHeight;if(w===lastW&&Math.abs(h-lastH)<120&&lastH)return;lastW=w;lastH=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.9?52:40;camera.updateProjectionMatrix();measure()}
+  var target=0,cur=0,tP=0,cP=0,mouseX=0,mouseY=0,mx=0,my=0,maxScroll=1;
+  var anchors=[];function measure(){maxScroll=Math.max(1,root.scrollHeight-innerHeight);anchors=secs.map(function(sc){return Math.max(0,sc.offsetTop+(sc.offsetHeight-innerHeight)/2)})}
+  function Pof(y){var n=anchors.length;if(y<=anchors[0])return 0;for(var i=0;i<n-1;i++){if(y<=anchors[i+1])return i+(y-anchors[i])/Math.max(1,anchors[i+1]-anchors[i])}return n-1}
+  var lastW=0,lastH=0;function resize(){var w=innerWidth,h=innerHeight;if(w===lastW&&Math.abs(h-lastH)<120&&lastH)return;lastW=w;lastH=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.9?42:40;camera.updateProjectionMatrix();measure()}
   addEventListener('resize',resize);resize();addEventListener('load',measure);
-  addEventListener('scroll',function(){target=Math.min(1,scrollY/maxScroll)},{passive:true});
+  addEventListener('scroll',function(){target=Math.min(1,scrollY/maxScroll);tP=Pof(scrollY)},{passive:true});
   addEventListener('pointermove',function(e){mouseX=e.clientX/innerWidth*2-1;mouseY=e.clientY/innerHeight*2-1});
   var clock=new THREE.Clock(),tmp=new THREE.Color();
 
   function frame(){
     var t=clock.getElapsedTime();
-    cur+=(target-cur)*.07;mx+=(mouseX-mx)*.05;my+=(mouseY-my)*.05;
-    var p=cur*(K.length-1),i=Math.min(Math.floor(p),K.length-2),fr=p-i,f=ease(fr),a=K[i],b=K[i+1];
-    var mobile=camera.aspect<.9,xf=mobile?.2:Math.min(1,camera.aspect/1.5+.25),yo=mobile?2.0:0,sf=mobile?.74:1;
+    cur+=(target-cur)*.07;cP+=(tP-cP)*.07;mx+=(mouseX-mx)*.05;my+=(mouseY-my)*.05;
+    var p=Math.min(cP,K.length-1),i=Math.max(0,Math.min(Math.floor(p),K.length-2)),fr=p-i,f=ease(fr),a=K[i],b=K[i+1];
+    var mobile=camera.aspect<.9,xf=mobile?.2:Math.min(1,camera.aspect/1.5+.25),yo=mobile?1.75:0,sf=mobile?.82:1;
     kick*=.93;
     // can
     var cs=lerp(a.cs,b.cs,f)*sf*(1+kick*.1);
@@ -431,9 +434,9 @@
     can.position.set(lerp(mobile&&a.cxm!==undefined?a.cxm:a.cx*xf,mobile&&b.cxm!==undefined?b.cxm:b.cx*xf,f),lerp(a.cy,b.cy,f)+yo+Math.sin(t*.9)*.06,0);
     can.rotation.set(my*.12,lerp(a.cry,b.cry,f)+Math.sin(t*.5)*.1+mx*.3+kick*.6,lerp(a.crz,b.crz,f)+Math.sin(t*.7)*.03);
     // box
-    var bs=lerp(a.bs,b.bs,f)*sf;
+    var bs=lerp(a.bs,b.bs,f)*sf*(mobile?1.0:1);
     box.visible=bs>.01;box.scale.setScalar(Math.max(bs,.0001));
-    box.position.set(lerp(a.bx*xf,b.bx*xf,f),lerp(a.by,b.by,f)+yo+Math.sin(t*.8)*.05,0);
+    box.position.set(lerp(mobile&&a.bxm!==undefined?a.bxm:a.bx*xf,mobile&&b.bxm!==undefined?b.bxm:b.bx*xf,f),lerp(a.by,b.by,f)+yo-(mobile?.3:0)+Math.sin(t*.8)*.05,0);
     box.rotation.set(lerp(a.brx,b.brx,f)+my*.1,lerp(a.bry,b.bry,f)+mx*.3+Math.sin(t*.4)*.06,0);
     // lid opens first, then sachets rise one by one
     var open=lerp(a.open,b.open,f),rise=lerp(a.rise,b.rise,f);
@@ -453,6 +456,7 @@
     camera.position.set(mx*.4,-my*.2,mobile?9.6:8.2);camera.lookAt(0,0,0);
     dust.rotation.y=t*.012+cur*1.2;dust.position.y=cur*7;pm.opacity=.4+.25*Math.sin(t*.6);
     renderer.render(scene,camera);
+    if(mobile){var vh=innerHeight;secs.forEach(function(sc){var r=sc.getBoundingClientRect();if(r.bottom<-50||r.top>vh+50)return;var o=Math.max(0,Math.min(1,(r.bottom-vh*.6)/(vh*.3)));sc.firstElementChild.style.opacity=o})}
     bar.style.transform='scaleX('+cur+')';
     var mid=scrollY+innerHeight*.5,act=0;secs.forEach(function(s,k){if(mid>=s.offsetTop)act=k});
     dots.forEach(function(d,k){d.classList.toggle('on',k===act)});
